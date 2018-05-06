@@ -1,4 +1,4 @@
-# AWS Developer: Getting Started with DynamoDB
+# Developing Survey Application with AWS Lambda, API Gateway and DynamoDB
 
 ## Index
 
