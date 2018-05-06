@@ -1,0 +1,229 @@
+{
+  "Resources" : {
+    "SurveyTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "TableName" : "MCK.Survey",
+        "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
+        "KeySchema" :
+        [
+          {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
+          {"AttributeName" : "Name  ", "KeyType" : "RANGE"}
+        ],
+        "AttributeDefinitions" :
+        [
+          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
+          {"AttributeName" : "Name", "AttributeType" : "S"},
+          {"AttributeName" : "Description", "AttributeType" : "S"},
+          {"AttributeName" : "Updated", "AttributeType" : "N"}
+        ]
+      }
+    },
+    "UserTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "TableName" : "MCK.User",
+        "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
+        "KeySchema" :
+        [
+          {"AttributeName" : "UserId", "KeyType" : "HASH"},
+          {"AttributeName" : "Name", "KeyType" : "RANGE"}
+        ],
+        "AttributeDefinitions" :
+        [
+          {"AttributeName" : "UserId", "AttributeType" : "S"},
+          {"AttributeName" : "Name", "AttributeType" : "S"},
+          {"AttributeName" : "Password", "AttributeType" : "S"},
+          {"AttributeName" : "Email", "AttributeType" : "S"},
+          {"AttributeName" : "Created", "AttributeType" : "N"}
+        ]
+      }
+    },
+    "QuestionTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "TableName" : "MCK.Question",
+        "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
+        "KeySchema" :
+        [
+          {"AttributeName" : "QuestionId", "KeyType" : "HASH"},
+          {"AttributeName" : "SurveyId", "KeyType" : "RANGE"}
+          
+        ],
+        "AttributeDefinitions" :
+        [
+          {"AttributeName" : "QuestionId", "AttributeType" : "S"},
+          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
+          {"AttributeName" : "Text", "AttributeType" : "S"},
+          {"AttributeName" : "Type", "AttributeType" : "S"},
+          {"AttributeName" : "Order", "AttributeType" : "N"}
+        ],
+        "LocalSecondaryIndexes" : [{
+          "IndexName" : "QuestionsOrder",
+          "KeySchema" : [
+            {
+              "AttributeName" : "SurveyId",
+              "KeyType" : "HASH"
+            },
+            {
+              "AttributeName" : "Order",
+              "KeyType" : "RANGE"
+            }
+          ],                         
+          "Projection" : {
+            "NonKeyAttributes" : [],
+            "ProjectionType" : "ALL"
+          }
+        }]
+      }
+    },
+    "QuestionChoicesTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "TableName" : "MCK.QuestionChoices",
+        "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
+        "KeySchema" :
+        [
+          {"AttributeName" : "QuestionId", "KeyType" : "HASH"},
+          {"AttributeName" : "ChoiceId", "KeyType" : "RANGE"}
+          
+        ],
+        "AttributeDefinitions" :
+        [
+          {"AttributeName" : "QuestionId", "AttributeType" : "S"},
+          {"AttributeName" : "ChoiceId", "AttributeType" : "S"},
+          {"AttributeName" : "Text", "AttributeType" : "S"},
+          {"AttributeName" : "Order", "AttributeType" : "N"}
+        ],
+        "LocalSecondaryIndexes" : [{
+          "IndexName" : "QuestionChoicesOrder",
+          "KeySchema" : [
+            {
+              "AttributeName" : "QuestionId",
+              "KeyType" : "HASH"
+            },
+            {
+              "AttributeName" : "Order",
+              "KeyType" : "RANGE"
+            }
+          ],                         
+          "Projection" : {
+            "NonKeyAttributes" : [],
+            "ProjectionType" : "ALL"
+          }
+        }]
+      }
+    },
+    "SurveyResponsesTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "TableName" : "MCK.SurveyResponses",
+        "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
+        "KeySchema" :
+        [
+          {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
+          {"AttributeName" : "UserId", "KeyType" : "RANGE"}
+          
+        ],
+        "AttributeDefinitions" :
+        [
+          {"AttributeName" : "SurveyResponseId", "AttributeType" : "S"},
+          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
+          {"AttributeName" : "UserId", "AttributeType" : "S"},
+          {"AttributeName" : "Current_Question_Id", "AttributeType" : "S"},
+          {"AttributeName" : "StartedAt", "AttributeType" : "N"}, 
+          {"AttributeName" : "CompletedAt", "AttributeType" : "N"}
+        ],
+        "LocalSecondaryIndexes" : [{
+          "IndexName" : "SurveysCompleted",
+          "KeySchema" : [
+            {
+              "AttributeName" : "SurveyId",
+              "KeyType" : "HASH"
+            },
+            {
+              "AttributeName" : "CompletedAt",
+              "KeyType" : "RANGE"
+            }
+          ],                         
+          "Projection" : {
+            "NonKeyAttributes" : [],
+            "ProjectionType" : "ALL"
+          }
+        }],
+        "LocalSecondaryIndexes" : [{
+          "IndexName" : "SurveysByUserId",
+          "KeySchema" : [
+            {
+              "AttributeName" : "UserId",
+              "KeyType" : "HASH"
+            },
+            {
+              "AttributeName" : "SurveyId",
+              "KeyType" : "RANGE"
+            }
+          ],                         
+          "Projection" : {
+            "NonKeyAttributes" : [],
+            "ProjectionType" : "ALL"
+          }
+        }],
+        "LocalSecondaryIndexes" : [{
+          "IndexName" : "SurveyReponses",
+          "KeySchema" : [
+            {
+              "AttributeName" : "SurveyId",
+              "KeyType" : "HASH"
+            },
+            {
+              "AttributeName" : "SurveyResponseId",
+              "KeyType" : "RANGE"
+            }
+          ],                         
+          "Projection" : {
+            "NonKeyAttributes" : [],
+            "ProjectionType" : "ALL"
+          }
+        }]
+      }
+    },
+    "ResponsesTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "Properties" : {
+        "TableName" : "MCK.Responses",
+        "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
+        "KeySchema" :
+        [
+          {"AttributeName" : "SurveyResponseId", "KeyType" : "HASH"},
+          {"AttributeName" : "QuestionId", "KeyType" : "RANGE"}
+          
+        ],
+        "AttributeDefinitions" :
+        [
+          {"AttributeName" : "SurveyResponseId", "AttributeType" : "S"},
+          {"AttributeName" : "QuestionId", "AttributeType" : "S"},
+          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
+          {"AttributeName" : "Type", "AttributeType" : "S"},
+          {"AttributeName" : "Answer", "AttributeType" : "S"}
+        ],
+        "LocalSecondaryIndexes" : [{
+          "IndexName" : "ResponsesByQuestion",
+          "KeySchema" : [
+            {
+              "AttributeName" : "QuestionId",
+              "KeyType" : "HASH"
+            },
+            {
+              "AttributeName" : "SurveyId",
+              "KeyType" : "RANGE"
+            }
+          ],                         
+          "Projection" : {
+            "NonKeyAttributes" : [],
+            "ProjectionType" : "ALL"
+          }
+        }]
+      }
+    }
+  }
+}
