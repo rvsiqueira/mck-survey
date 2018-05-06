@@ -8,14 +8,12 @@
         "KeySchema" :
         [
           {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
-          {"AttributeName" : "Name  ", "KeyType" : "RANGE"}
+          {"AttributeName" : "Name", "KeyType" : "RANGE"}
         ],
         "AttributeDefinitions" :
         [
           {"AttributeName" : "SurveyId", "AttributeType" : "S"},
-          {"AttributeName" : "Name", "AttributeType" : "S"},
-          {"AttributeName" : "Description", "AttributeType" : "S"},
-          {"AttributeName" : "Updated", "AttributeType" : "N"}
+          {"AttributeName" : "Name", "AttributeType" : "S"}
         ]
       }
     },
@@ -43,8 +41,8 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "QuestionId", "KeyType" : "HASH"},
-          {"AttributeName" : "SurveyId", "KeyType" : "RANGE"}
+          {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
+          {"AttributeName" : "QuestionId", "KeyType" : "RANGE"}
           
         ],
         "AttributeDefinitions" :
@@ -142,25 +140,8 @@
             "NonKeyAttributes" : [],
             "ProjectionType" : "ALL"
           }
-        }],
-        "LocalSecondaryIndexes" : [{
-          "IndexName" : "SurveysByUserId",
-          "KeySchema" : [
-            {
-              "AttributeName" : "UserId",
-              "KeyType" : "HASH"
-            },
-            {
-              "AttributeName" : "SurveyId",
-              "KeyType" : "RANGE"
-            }
-          ],                         
-          "Projection" : {
-            "NonKeyAttributes" : [],
-            "ProjectionType" : "ALL"
-          }
-        }],
-        "LocalSecondaryIndexes" : [{
+        },
+        {
           "IndexName" : "SurveyReponses",
           "KeySchema" : [
             {
@@ -186,8 +167,8 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "SurveyResponseId", "KeyType" : "HASH"},
-          {"AttributeName" : "QuestionId", "KeyType" : "RANGE"}
+          {"AttributeName" : "QuestionId", "KeyType" : "HASH"},
+          {"AttributeName" : "SurveyResponseId", "KeyType" : "RANGE"}
           
         ],
         "AttributeDefinitions" :
