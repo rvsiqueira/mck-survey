@@ -32,10 +32,7 @@
         "AttributeDefinitions" :
         [
           {"AttributeName" : "UserId", "AttributeType" : "S"},
-          {"AttributeName" : "Name", "AttributeType" : "S"},
-          {"AttributeName" : "Password", "AttributeType" : "S"},
-          {"AttributeName" : "Email", "AttributeType" : "S"},
-          {"AttributeName" : "Created", "AttributeType" : "N"}
+          {"AttributeName" : "Name", "AttributeType" : "S"}
         ]
       }
     },
@@ -54,8 +51,6 @@
         [
           {"AttributeName" : "QuestionId", "AttributeType" : "S"},
           {"AttributeName" : "SurveyId", "AttributeType" : "S"},
-          {"AttributeName" : "Text", "AttributeType" : "S"},
-          {"AttributeName" : "Type", "AttributeType" : "S"},
           {"AttributeName" : "Order", "AttributeType" : "N"}
         ],
         "LocalSecondaryIndexes" : [{
@@ -92,7 +87,6 @@
         [
           {"AttributeName" : "QuestionId", "AttributeType" : "S"},
           {"AttributeName" : "ChoiceId", "AttributeType" : "S"},
-          {"AttributeName" : "Text", "AttributeType" : "S"},
           {"AttributeName" : "Order", "AttributeType" : "N"}
         ],
         "LocalSecondaryIndexes" : [{
@@ -130,8 +124,6 @@
           {"AttributeName" : "SurveyResponseId", "AttributeType" : "S"},
           {"AttributeName" : "SurveyId", "AttributeType" : "S"},
           {"AttributeName" : "UserId", "AttributeType" : "S"},
-          {"AttributeName" : "Current_Question_Id", "AttributeType" : "S"},
-          {"AttributeName" : "StartedAt", "AttributeType" : "N"}, 
           {"AttributeName" : "CompletedAt", "AttributeType" : "N"}
         ],
         "LocalSecondaryIndexes" : [{
@@ -202,9 +194,7 @@
         [
           {"AttributeName" : "SurveyResponseId", "AttributeType" : "S"},
           {"AttributeName" : "QuestionId", "AttributeType" : "S"},
-          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
-          {"AttributeName" : "Type", "AttributeType" : "S"},
-          {"AttributeName" : "Answer", "AttributeType" : "S"}
+          {"AttributeName" : "SurveyId", "AttributeType" : "S"}
         ],
         "LocalSecondaryIndexes" : [{
           "IndexName" : "ResponsesByQuestion",
