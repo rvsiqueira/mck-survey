@@ -7,11 +7,11 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
+          {"AttributeName" : "SurveyId", "KeyType" : "HASH"}
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
+          {"AttributeName" : "SurveyId", "AttributeType" : "S"}
         ]
       }
     },
