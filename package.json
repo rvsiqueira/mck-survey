@@ -9,8 +9,9 @@
   "author": "Rafael Siqueira",
   "license": "ISC",
   "dependencies": {
-    "dynamodb-doc": "*",
     "aws-sdk": "*",
-    "dynamodb": "*"
+    "dynamodb": "*",
+    "dynamodb-doc": "*",
+    "uuid": "^3.2.1"
   }
 }

@@ -8,12 +8,10 @@
         "KeySchema" :
         [
           {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
-          {"AttributeName" : "Name", "KeyType" : "RANGE"}
         ],
         "AttributeDefinitions" :
         [
           {"AttributeName" : "SurveyId", "AttributeType" : "S"},
-          {"AttributeName" : "Name", "AttributeType" : "S"}
         ]
       }
     },
