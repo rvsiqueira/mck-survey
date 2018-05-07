@@ -99,43 +99,134 @@ function storeUser(email, name, password, salt, fn) {
 	});
 }
 
-exports.handler = function(event, context) {
-	var email = event.email;
-	var clearPassword = event.password;
-	var name = event.name;
-
-	computeHash(clearPassword, function(err, salt, hash) {
-		if (err) {
-			context.fail('Error in hash: ' + err);
-		} else {
-			storeUser(email, name, hash, salt, function(err, token) {
-				if (err) {
-					if (err.code == 'ConditionalCheckFailedException') {
-						// userId already found
-						context.succeed({
-							created: false
-						});
-					} else {
-						context.fail('Error in storeUser: ' + err);
-					}
-				} else {
-					sendVerificationEmail(email, token, function(err, data) {
-						if (err) {
-							context.fail('Error in sendVerificationEmail: ' + err);
-						} else {
-							context.succeed({
-								created: true
-							});
-						}
-					});
+//Getting all user information to verify token sent by email 
+function getUserVerification(email, fn) {
+	dynamodb.getItem({
+		TableName: config.DDB_TABLE,
+		Key: {
+			email: {
+				S: email
+			}
+		}
+	}, function(err, data) {
+		if (err) return fn(err);
+		else {
+			if ('Item' in data) {
+				var verified = data.Item.verified.BOOL;
+				var verifyToken = null;
+				if (!verified) {
+					verifyToken = data.Item.verifyToken.S;
 				}
-			});
+				fn(null, verified, verifyToken);
+			} else {
+				fn(null, null); // User not found
+			}
 		}
 	});
 }
 
-updateItem("9eebeaf0-5168-11e8-8cf2-5fe8b44d6870","Teste 4", "Testando Survey 2");
-createItem("Teste 2", "Testando Survey 2");
-getItem('9eebeaf0-5168-11e8-8cf2-5fe8b44d6870');
+//Account Confirmation Upadate
+function updateUserVerification(email, fn) {
+	dynamodb.updateItem({
+			TableName: config.DDB_TABLE,
+			Key: {
+				email: {
+					S: email
+				}
+			},
+			AttributeUpdates: {
+				verified: {
+					Action: 'PUT',
+					Value: {
+						BOOL: true
+					}
+				},
+				verifyToken: {
+					Action: 'DELETE'
+				}
+			}
+		},
+		fn);
+}
+
+exports.handler = function(event, context) {
+	
+	var type = event.type;
+
+	if(type == 'CreateUser') {
+		var email = event.email;
+		var clearPassword = event.password;
+		var name = event.name;
+
+		computeHash(clearPassword, function(err, salt, hash) {
+			if (err) {
+				context.fail('Error in hash: ' + err);
+			} else {
+				storeUser(email, name, hash, salt, function(err, token) {
+					if (err) {
+						if (err.code == 'ConditionalCheckFailedException') {
+							// userId already found
+							context.succeed({
+								created: false
+							});
+						} else {
+							context.fail('Error in storeUser: ' + err);
+						}
+					} else {
+						sendVerificationEmail(email, token, function(err, data) {
+							if (err) {
+								context.fail('Error in sendVerificationEmail: ' + err);
+							} else {
+								context.succeed({
+									created: true
+								});
+							}
+						});
+					}
+				});
+			}
+		});
+	} else if(type == 'VerifyUser') {
+		var email = event.email;
+		var verifyToken = event.verify;
+
+		getUserVerification(email, function(err, verified, correctToken) {
+			if (err) {
+				context.fail('Error in getUser: ' + err);
+			} else if (verified) {
+				console.log('User already verified: ' + email);
+				context.succeed({
+					verified: true
+				});
+			} else if (verifyToken == correctToken) {
+				// User verified
+				updateUserVerification(email, function(err, data) {
+					if (err) {
+						context.fail('Error in updateUser: ' + err);
+					} else {
+						console.log('User verified: ' + email);
+						context.succeed({
+							verified: true
+						});
+					}
+				});
+			} else {
+				// Wrong token, not verified
+				console.log('User not verified: ' + email);
+				context.succeed({
+					verified: false
+				});
+			}
+		});
+	} else {
+								context.fail('Method not available');
+	}
+	
+}
+
+
+//updateItem("9eebeaf0-5168-11e8-8cf2-5fe8b44d6870","Teste 4", "Testando Survey 2");
+//createItem("Teste 2", "Testando Survey 2");
+//getItem('9eebeaf0-5168-11e8-8cf2-5fe8b44d6870');
 //deleteById('a5b74460-5168-11e8-8f45-b5cba1aa9547');
-getItemByName('Teste');
+//getItemByName('Teste');
