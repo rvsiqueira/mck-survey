@@ -1,0 +1,17 @@
+{
+  "EXTERNAL_NAME": "McKinsey Survey",
+	"REGION": "eu-east-1",
+  "VERIFICATION_PAGE": "http://bucket.s3.amazonaws.com/verify.html",
+	"BUCKET": "bucket",
+	"EMAIL_SOURCE": "rafael_siqueira@mckinsey.com",
+  "CRYPTO_BYTE_SIZE": 128,
+  "DDB_USER_TABLE": "MCK.User",
+  "AWS_ACCOUNT_ID": "123412341234",
+  "CLI_PROFILE": "default",
+  "MAX_AGE": "10",
+  "DDB_TABLE": "LambdAuthUsers",
+  "IDENTITY_POOL_NAME": "LambdAuth",
+  "DEVELOPER_PROVIDER_NAME": "login.mycompany.myapp",
+  "EMAIL_SOURCE": "email@example.com",
+  "RESET_PAGE": "http://bucket.s3.amazonaws.com/reset.html"
+}
