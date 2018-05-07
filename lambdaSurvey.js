@@ -11,10 +11,10 @@ function createItem(name, description)
     var params = {
         TableName: 'MCK.Survey',
         Item: {
-          'SurveyId': uuidv1(),
-          'Name': name,
-          'Description': description,
-          'CreatedAt:': Date.now()
+          'surveyId': uuidv1(),
+          'name': name,
+          'description': description,
+          'createdAt:': Date.now()
         },
         ReturnConsumedCapacity : "TOTAL",
         ReturnValues : "ALL_OLD"  
@@ -35,7 +35,7 @@ function updateItem(surveyId, name, description)
     var params = {
         TableName: 'MCK.Survey',
         Key: {
-            'SurveyId': surveyId
+            'surveyId': surveyId
         },
         UpdateExpression : 'set #name = :name , #description = :description',
         ExpressionAttributeValues : {
@@ -43,8 +43,8 @@ function updateItem(surveyId, name, description)
             ':description': description
         },
         ExpressionAttributeNames:{
-            "#name": "Name",
-            "#description": "Description"
+            "#name": "name",
+            "#description": "description"
         },
         ReturnConsumedCapacity : "TOTAL",
         ReturnValues : "ALL_NEW"
@@ -66,7 +66,7 @@ function getItem(surveyId)
         ExpressionAttributeValues: {
             ':s': surveyId
         },
-        KeyConditionExpression: 'SurveyId = :s',
+        KeyConditionExpression: 'surveyId = :s',
         ReturnConsumedCapacity : "TOTAL"  
     };
      console.log(params);
@@ -90,7 +90,7 @@ function getItemByName(name)
             ':n': name
         },
         ExpressionAttributeNames:{
-            "#name": "Name"
+            "#name": "name"
         },
         ScanIndexForward : false,
         ReturnConsumedCapacity : "TOTAL"
@@ -110,7 +110,7 @@ function deleteById(surveyId)
 {
     var params = {
         Key: {
-          'SurveyId': surveyId
+          'surveyId': surveyId
         },
         TableName: 'MCK.Survey'
     };

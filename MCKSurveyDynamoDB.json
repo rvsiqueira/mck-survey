@@ -7,18 +7,18 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "SurveyId", "KeyType" : "HASH"}
+          {"AttributeName" : "surveyId", "KeyType" : "HASH"}
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
-          {"AttributeName" : "Name", "AttributeType" : "S"}
+          {"AttributeName" : "surveyId", "AttributeType" : "S"},
+          {"AttributeName" : "name", "AttributeType" : "S"}
         ],
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "SurveyNames",
           "KeySchema" : 
           [
-            { "AttributeName" : "Name", "KeyType" : "HASH"}
+            { "AttributeName" : "name", "KeyType" : "HASH"}
           ],                         
           "Projection" : {
             "NonKeyAttributes" : [],
@@ -38,13 +38,11 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "UserId", "KeyType" : "HASH"},
-          {"AttributeName" : "Name", "KeyType" : "RANGE"}
+          {"AttributeName" : "email", "KeyType" : "HASH"}
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "UserId", "AttributeType" : "S"},
-          {"AttributeName" : "Name", "AttributeType" : "S"}
+          {"AttributeName" : "email", "AttributeType" : "S"}
         ]
       }
     },
