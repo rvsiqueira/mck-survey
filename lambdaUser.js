@@ -281,6 +281,57 @@ function getUserLogin(email, fn) {
 	});
 }
 
+function getUserResetPassword(email, fn) {
+	dynamodb.getItem({
+		TableName: config.DDB_USER_TABLE,
+		Key: {
+			email: {
+				S: email
+			}
+		}
+	}, function(err, data) {
+		if (err) return fn(err);
+		else {
+			if (('Item' in data) && ('lostToken' in data.Item)) {
+				var lostToken = data.Item.lostToken.S;
+				fn(null, lostToken);
+			} else {
+				fn(null, null); // User or token not found
+			}
+		}
+	});
+}
+
+function updateUserResetPassword(email, password, salt, fn) {
+	dynamodb.updateItem({
+			TableName: config.DDB_TABLE,
+			Key: {
+				email: {
+					S: email
+				}
+			},
+			AttributeUpdates: {
+				passwordHash: {
+					Action: 'PUT',
+					Value: {
+						S: password
+					}
+				},
+				passwordSalt: {
+					Action: 'PUT',
+					Value: {
+						S: salt
+					}
+				},
+				lostToken: {
+					Action: 'DELETE'
+				}
+			}
+		},
+		fn);
+}
+
+
 exports.handler = function(event, context) {
 	
 	var type = event.type;
@@ -477,8 +528,45 @@ exports.handler = function(event, context) {
 				});
 			}
 		});
-	} else if(type = 'RecoverPassword') {
-		
+	} else if(type = 'ResetPassword') {
+		var email = event.email;
+		var lostToken = event.lost;
+		var newPassword = event.password;
+
+		getUserResetPassword(email, function(err, correctToken) {
+			if (err) {
+				context.fail('Error in getUser: ' + err);
+			} else if (!correctToken) {
+				console.log('No lostToken for user: ' + email);
+				context.succeed({
+					changed: false
+				});
+			} else if (lostToken != correctToken) {
+				// Wrong token, no password lost
+				console.log('Wrong lostToken for user: ' + email);
+				context.succeed({
+					changed: false
+				});
+			} else {
+				console.log('User logged in: ' + email);
+				computeHash(newPassword, function(err, newSalt, newHash) {
+					if (err) {
+						context.fail('Error in computeHash: ' + err);
+					} else {
+						updateUserResetPassword(email, newHash, newSalt, function(err, data) {
+							if (err) {
+								context.fail('Error in updateUser: ' + err);
+							} else {
+								console.log('User password changed: ' + email);
+								context.succeed({
+									changed: true
+								});
+							}
+						});
+					}
+				});
+			}
+		});
 	} else {
 								context.fail('Method not available');
 	}
