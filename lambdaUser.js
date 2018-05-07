@@ -18,26 +18,6 @@ function computeHash(password, salt, fn) {
 	var iterations = 4096;
 
 	if (3 == arguments.length) {
-		crypto.pbkdf2(password, salt, iterations, len, fn);
-	} else {
-		fn = salt;
-		crypto.randomBytes(len, function(err, salt) {
-			if (err) return fn(err);
-			salt = salt.toString('base64');
-			crypto.pbkdf2(password, salt, iterations, len, function(err, derivedKey) {
-				if (err) return fn(err);
-				fn(null, salt, derivedKey.toString('base64'));
-			});
-		});
-	}
-}
-
-function computeHashLogin(password, salt, fn) {
-	// Bytesize
-	var len = config.CRYPTO_BYTE_SIZE;
-	var iterations = 4096;
-
-	if (3 == arguments.length) {
 		crypto.pbkdf2(password, salt, iterations, len, function(err, derivedKey) {
 			if (err) return fn(err);
 			else fn(null, salt, derivedKey.toString('base64'));
@@ -47,7 +27,7 @@ function computeHashLogin(password, salt, fn) {
 		crypto.randomBytes(len, function(err, salt) {
 			if (err) return fn(err);
 			salt = salt.toString('base64');
-			computeHashLogin(password, salt, fn);
+			computeHash(password, salt, fn);
 		});
 	}
 }
@@ -172,6 +152,32 @@ function updateUserVerification(email, fn) {
 		fn);
 }
 
+function updateUserPassword(email, password, salt, fn) {
+	dynamodb.updateItem({
+			TableName: config.DDB_TABLE,
+			Key: {
+				email: {
+					S: email
+				}
+			},
+			AttributeUpdates: {
+				passwordHash: {
+					Action: 'PUT',
+					Value: {
+						S: password
+					}
+				},
+				passwordSalt: {
+					Action: 'PUT',
+					Value: {
+						S: salt
+					}
+				}
+			}
+		},
+		fn);
+}
+
 function getUserLogin(email, fn) {
 	dynamodb.getItem({
 		TableName: config.DDB_USER_TABLE,
@@ -186,8 +192,8 @@ function getUserLogin(email, fn) {
 			if ('Item' in data) {
 				var hash = data.Item.passwordHash.S;
 				var salt = data.Item.passwordSalt.S;
-				var userId = data.Item.userId.S;
 				var verified = data.Item.verified.BOOL;
+				var userId = data.Item.userId.S;
 				fn(null, hash, salt, verified, userId);
 			} else {
 				fn(null, null); // User not found
@@ -195,7 +201,6 @@ function getUserLogin(email, fn) {
 		}
 	});
 }
-
 
 exports.handler = function(event, context) {
 	
@@ -288,7 +293,7 @@ exports.handler = function(event, context) {
 						verified: false,
 					});
 				} else {
-					computeHashLogin(clearPassword, salt, function(err, salt, hash) {
+					computeHash(clearPassword, salt, function(err, salt, hash) {
 						if (err) {
 							context.fail('Error in hash: ' + err);
 						} else {
@@ -314,6 +319,56 @@ exports.handler = function(event, context) {
 				}
 			}
 	});
+	} else if(type = 'ChangePassword') {
+		var email = event.email;
+		var oldPassword = event.oldPassword;
+		var newPassword = event.newPassword;
+		getUser(email, function(err, correctHash, salt, verified, userId) {
+			if (err) {
+				context.fail('Error in getUser: ' + err);
+			} else {
+				if (correctHash == null) {
+					// User not found
+					console.log('User not found: ' + email);
+					context.succeed({
+						changed: false
+					});
+				} else {
+					computeHash(oldPassword, salt, function(err, salt, hash) {
+						if (err) {
+							context.fail('Error in hash: ' + err);
+						} else {
+							if (hash == correctHash) {
+								// Login ok
+								console.log('User logged in: ' + email);
+								computeHash(newPassword, function(err, newSalt, newHash) {
+									if (err) {
+										context.fail('Error in computeHash: ' + err);
+									} else {
+										updateUserPassword(email, newHash, newSalt, function(err, data) {
+											if (err) {
+												context.fail('Error in updateUser: ' + err);
+											} else {
+												console.log('User password changed: ' + email);
+												context.succeed({
+													changed: true
+												});
+											}
+										});
+									}
+								});
+							} else {
+								// Login failed
+								console.log('User login failed: ' + email);
+								context.succeed({
+									changed: false
+								});
+							}
+						}
+					});
+				}
+			}
+		});
 	} else {
 								context.fail('Method not available');
 	}
