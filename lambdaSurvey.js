@@ -22,9 +22,9 @@ function createItem(name, description)
 
     docClient.put(params, function(err, data) {
         if (err) {
-            console.log(err);
+            console.log("Error Create Item: ", err);
         } else {
-            console.log(data);
+            console.log("Success Create Item: ", data);
         }
     });
 }
@@ -52,9 +52,9 @@ function updateItem(surveyId, name, description)
 
     docClient.update(params, function(err, data) {
         if (err) {
-            console.log(err);
+            console.log("Error Update Item: ", err);
         } else {
-            console.log(data);
+            console.log("Success Update Item: ", data);
         }
     });
 }
@@ -73,9 +73,9 @@ function getItem(surveyId)
     
     docClient.query(params, function(err, data) {
         if (err) {
-           console.log(err);
+            console.log("Error Get Item: ", err);
         } else {
-           console.log(data);
+            console.log("Success Get Item: ", data);
         }
     });
 }
@@ -84,22 +84,24 @@ function getItemByName(name)
 {
     var params = {
         TableName: 'MCK.Survey',
+        IndexName: "SurveyNames",
+        KeyConditionExpression: '#name = :n',
         ExpressionAttributeValues: {
             ':n': name
         },
         ExpressionAttributeNames:{
             "#name": "Name"
         },
-        FilterExpression: 'contains (#name , :n)',
-        ReturnConsumedCapacity : "TOTAL"  
+        ScanIndexForward : false,
+        ReturnConsumedCapacity : "TOTAL"
     };
      console.log(params);
     
-    docClient.scan(params, function(err, data) {
+    docClient.query(params, function(err, data) {
         if (err) {
-           console.log(err);
+            console.log("Error Get Item By Name: ", err);
         } else {
-           console.log(data);
+            console.log("Success Get Item By Name: ", data);
         }
     });
 }
@@ -117,15 +119,16 @@ function deleteById(surveyId)
     
     docClient.delete(params, function(err, data) {
         if (err) {
-           console.log(err);
+            console.log("Error Delete Item: ", err);
         } else {
-           console.log(data);
+            console.log("Success Delete Item: ", data);
         }
     });
 }
 
 
-updateItem("9eebeaf0-5168-11e8-8cf2-5fe8b44d6870","Teste2", "Testando Survey2");
-//getItem('b488f3d0-515e-11e8-b040-1b2fe7209853');
+updateItem("9eebeaf0-5168-11e8-8cf2-5fe8b44d6870","Teste 4", "Testando Survey 2");
+createItem("Teste 2", "Testando Survey 2");
+getItem('9eebeaf0-5168-11e8-8cf2-5fe8b44d6870');
 //deleteById('a5b74460-5168-11e8-8f45-b5cba1aa9547');
-//getItemByName('Teste');
+getItemByName('Teste');

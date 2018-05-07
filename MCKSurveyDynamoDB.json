@@ -11,9 +11,25 @@
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "SurveyId", "AttributeType" : "S"}
-        ]
-      }
+          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
+          {"AttributeName" : "Name", "AttributeType" : "S"}
+        ],
+        "GlobalSecondaryIndexes" : [{
+          "IndexName" : "SurveyNames",
+          "KeySchema" : 
+          [
+            { "AttributeName" : "Name", "KeyType" : "HASH"}
+          ],                         
+          "Projection" : {
+            "NonKeyAttributes" : [],
+            "ProjectionType" : "ALL"
+          },
+          "ProvisionedThroughput" : {
+            "ReadCapacityUnits" : "1",
+            "WriteCapacityUnits" : "1"
+          }
+        }]
+      },
     },
     "UserTable" : {
       "Type" : "AWS::DynamoDB::Table",
