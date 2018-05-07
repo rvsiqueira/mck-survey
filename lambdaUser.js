@@ -32,6 +32,26 @@ function computeHash(password, salt, fn) {
 	}
 }
 
+function computeHashLogin(password, salt, fn) {
+	// Bytesize
+	var len = config.CRYPTO_BYTE_SIZE;
+	var iterations = 4096;
+
+	if (3 == arguments.length) {
+		crypto.pbkdf2(password, salt, iterations, len, function(err, derivedKey) {
+			if (err) return fn(err);
+			else fn(null, salt, derivedKey.toString('base64'));
+		});
+	} else {
+		fn = salt;
+		crypto.randomBytes(len, function(err, salt) {
+			if (err) return fn(err);
+			salt = salt.toString('base64');
+			computeHashLogin(password, salt, fn);
+		});
+	}
+}
+
 function sendVerificationEmail(email, token, fn) {
 	var subject = 'Verification Email for ' + config.EXTERNAL_NAME;
 	var verificationLink = config.VERIFICATION_PAGE + '?email=' + encodeURIComponent(email) + '&verify=' + token;
@@ -78,6 +98,9 @@ function storeUser(email, name, password, salt, fn) {
 				name: {
 					S: name
 				},
+				userId: {
+					S: uuidv1()
+				},
 				passwordHash: {
 					S: password
 				},
@@ -102,7 +125,7 @@ function storeUser(email, name, password, salt, fn) {
 //Getting all user information to verify token sent by email 
 function getUserVerification(email, fn) {
 	dynamodb.getItem({
-		TableName: config.DDB_TABLE,
+		TableName: config.DDB_USER_TABLE,
 		Key: {
 			email: {
 				S: email
@@ -128,7 +151,7 @@ function getUserVerification(email, fn) {
 //Account Confirmation Upadate
 function updateUserVerification(email, fn) {
 	dynamodb.updateItem({
-			TableName: config.DDB_TABLE,
+			TableName: config.DDB_USER_TABLE,
 			Key: {
 				email: {
 					S: email
@@ -148,6 +171,31 @@ function updateUserVerification(email, fn) {
 		},
 		fn);
 }
+
+function getUserLogin(email, fn) {
+	dynamodb.getItem({
+		TableName: config.DDB_USER_TABLE,
+		Key: {
+			email: {
+				S: email
+			}
+		}
+	}, function(err, data) {
+		if (err) return fn(err);
+		else {
+			if ('Item' in data) {
+				var hash = data.Item.passwordHash.S;
+				var salt = data.Item.passwordSalt.S;
+				var userId = data.Item.userId.S;
+				var verified = data.Item.verified.BOOL;
+				fn(null, hash, salt, verified, userId);
+			} else {
+				fn(null, null); // User not found
+			}
+		}
+	});
+}
+
 
 exports.handler = function(event, context) {
 	
@@ -218,6 +266,54 @@ exports.handler = function(event, context) {
 				});
 			}
 		});
+	} else if(type == 'UserLogin') {
+		var email = event.email;
+		var clearPassword = event.password;
+
+		getUserLogin(email, function(err, correctHash, salt, verified, userId) {
+			if (err) {
+				context.fail('Error in getUser: ' + err);
+			} else {
+				if (correctHash == null) {
+					// User not found
+					console.log('User not found: ' + email);
+					context.succeed({
+						login: false
+					});
+				} else if (!verified) {
+					// User not verified
+					console.log('User not verified: ' + email);
+					context.succeed({
+						login: false,
+						verified: false,
+					});
+				} else {
+					computeHashLogin(clearPassword, salt, function(err, salt, hash) {
+						if (err) {
+							context.fail('Error in hash: ' + err);
+						} else {
+							console.log('correctHash: ' + correctHash + ' hash: ' + hash);
+							if (hash == correctHash) {
+								// Login ok
+								console.log('User logged in: ' + email);
+								context.succeed({
+									login: true,
+									userId: userId
+								});
+									}
+								});
+							} else {
+								// Login failed
+								console.log('User login failed: ' + email);
+								context.succeed({
+									login: false
+								});
+							}
+						}
+					});
+				}
+			}
+	});
 	} else {
 								context.fail('Method not available');
 	}
