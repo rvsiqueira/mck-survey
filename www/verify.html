@@ -6,11 +6,12 @@
 <body>
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.3.7.min.js"></script>
 	<script>
-  AWS.config.region = '<REGION>';
-	AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: '<IDENTITY_POOL_ID>'
-  });
-  var lambda = new AWS.Lambda();
+// Initialize the Amazon Cognito credentials provider
+AWS.config.region = 'us-east-1'; // Region
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: 'us-east-1:000b5d5d-ac24-4fbb-909e-709f2e905025',
+});
+	var lambda = new AWS.Lambda();
 	</script>
   <h1>Sample Verify User Page</h1>
   <div id="info">
@@ -40,10 +41,11 @@
     } else {
       var input = {
         email: urlParams['email'],
-        verify: urlParams['verify']
+        verify: urlParams['verify'],
+        type: "VerifyUser"
       };
       lambda.invoke({
-        FunctionName: 'LambdAuthVerifyUser',
+        FunctionName: 'LambdAuthLostPassword',
         Payload: JSON.stringify(input)
       }, function(err, data) {
         if (err) console.log(err, err.stack);

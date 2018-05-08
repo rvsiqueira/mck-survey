@@ -1,9 +1,9 @@
 {
   "EXTERNAL_NAME": "McKinsey Survey",
 	"REGION": "us-east-1",
-  "VERIFICATION_PAGE": "http://bucket.s3.amazonaws.com/verify.html",
-  "RESET_PAGE": "http://bucket.s3.amazonaws.com/reset.html",
-	"BUCKET": "bucket",
+  "VERIFICATION_PAGE": "https://s3.amazonaws.com/mck-survey/verify.html",
+  "RESET_PAGE": "https://s3.amazonaws.com/mck-survey/reset.html",
+	"BUCKET": "mck-survey",
 	"EMAIL_SOURCE": "rafael_siqueira@mckinsey.com",
   "CRYPTO_BYTE_SIZE": 128,
   "DDB_USER_TABLE": "MCK.User",

@@ -113,9 +113,10 @@ function storeLostToken(email, fn) {
 }
 
 function sendLostPasswordEmail(email, token, fn) {
+
 	var subject = 'Password Lost for ' + config.EXTERNAL_NAME;
 	var lostLink = config.RESET_PAGE + '?email=' + encodeURIComponent(email) + '&lost=' + token;
-
+	console.log(email);
 	ses.sendEmail({
 		Source: config.EMAIL_SOURCE,
 		Destination: {
@@ -234,7 +235,7 @@ function updateUserVerification(email, fn) {
 
 function updateUserPassword(email, password, salt, fn) {
 	dynamodb.updateItem({
-			TableName: config.DDB_TABLE,
+			TableName: config.DDB_USER_TABLE,
 			Key: {
 				email: {
 					S: email
@@ -305,7 +306,7 @@ function getUserResetPassword(email, fn) {
 
 function updateUserResetPassword(email, password, salt, fn) {
 	dynamodb.updateItem({
-			TableName: config.DDB_TABLE,
+			TableName: config.DDB_USER_TABLE,
 			Key: {
 				email: {
 					S: email
@@ -458,7 +459,7 @@ exports.handler = function(event, context) {
 				}
 			}
 		});
-	} else if(type = 'ChangePassword') {
+	} else if(type == 'ChangePassword') {
 		var email = event.email;
 		var oldPassword = event.oldPassword;
 		var newPassword = event.newPassword;
@@ -508,7 +509,7 @@ exports.handler = function(event, context) {
 				}
 			}
 		});
-	} else if(type = 'LostPassword') {
+	} else if(type == 'LostPassword') {
 		var email = event.email;
 		getUserLostPassword(email, function(err, emailFound) {
 			if (err) {
@@ -537,7 +538,7 @@ exports.handler = function(event, context) {
 				});
 			}
 		});
-	} else if(type = 'ResetPassword') {
+	} else if(type == 'ResetPassword') {
 		var email = event.email;
 		var lostToken = event.lost;
 		var newPassword = event.password;
