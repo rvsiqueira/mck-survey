@@ -16,9 +16,10 @@ function computeHash(password, salt, fn) {
 	// Bytesize
 	var len = config.CRYPTO_BYTE_SIZE;
 	var iterations = 4096;
+	var digest = 'sha512';
 
 	if (3 == arguments.length) {
-		crypto.pbkdf2(password, salt, iterations, len, function(err, derivedKey) {
+		crypto.pbkdf2(password, salt, iterations, len, digest, function(err, derivedKey) {
 			if (err) return fn(err);
 			else fn(null, salt, derivedKey.toString('base64'));
 		});
@@ -333,7 +334,15 @@ function updateUserResetPassword(email, password, salt, fn) {
 
 
 exports.handler = function(event, context) {
-	
+/*	
+	var event = {};
+	event.type = "CreateUser";
+	event.email = "rafsiqueira@gmail.com";
+	event.password = "1234";
+	event.name = "Rafael";
+
+	var context = {};
+*/	
 	var type = event.type;
 
 	if(type == 'CreateUser') {
@@ -357,6 +366,8 @@ exports.handler = function(event, context) {
 						}
 					} else {
 						sendVerificationEmail(email, token, function(err, data) {
+							console.log(data);
+							console.log(err);
 							if (err) {
 								context.fail('Error in sendVerificationEmail: ' + err);
 							} else {
@@ -435,8 +446,6 @@ exports.handler = function(event, context) {
 									login: true,
 									userId: userId
 								});
-									}
-								});
 							} else {
 								// Login failed
 								console.log('User login failed: ' + email);
@@ -448,7 +457,7 @@ exports.handler = function(event, context) {
 					});
 				}
 			}
-	});
+		});
 	} else if(type = 'ChangePassword') {
 		var email = event.email;
 		var oldPassword = event.oldPassword;
@@ -568,14 +577,6 @@ exports.handler = function(event, context) {
 			}
 		});
 	} else {
-								context.fail('Method not available');
+		context.fail('Method not available');
 	}
-	
 }
-
-
-//updateItem("9eebeaf0-5168-11e8-8cf2-5fe8b44d6870","Teste 4", "Testando Survey 2");
-//createItem("Teste 2", "Testando Survey 2");
-//getItem('9eebeaf0-5168-11e8-8cf2-5fe8b44d6870');
-//deleteById('a5b74460-5168-11e8-8f45-b5cba1aa9547');
-//getItemByName('Teste');

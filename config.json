@@ -1,8 +1,8 @@
 {
   "EXTERNAL_NAME": "McKinsey Survey",
-	"REGION": "eu-east-1",
+	"REGION": "us-east-1",
   "VERIFICATION_PAGE": "http://bucket.s3.amazonaws.com/verify.html",
-  "RESET_PAGE": "http://bucket.s3.amazonaws.com/reset.html"
+  "RESET_PAGE": "http://bucket.s3.amazonaws.com/reset.html",
 	"BUCKET": "bucket",
 	"EMAIL_SOURCE": "rafael_siqueira@mckinsey.com",
   "CRYPTO_BYTE_SIZE": 128,
@@ -11,5 +11,5 @@
   "CLI_PROFILE": "default",
   "MAX_AGE": "10",
   "IDENTITY_POOL_NAME": "LambdAuth",
-  "DEVELOPER_PROVIDER_NAME": "login.mycompany.myapp",
+  "DEVELOPER_PROVIDER_NAME": "login.mycompany.myapp"
 }
