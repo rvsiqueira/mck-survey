@@ -29,7 +29,7 @@
             "WriteCapacityUnits" : "1"
           }
         }]
-      },
+      }
     },
     "UserTable" : {
       "Type" : "AWS::DynamoDB::Table",
@@ -53,25 +53,25 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
-          {"AttributeName" : "QuestionId", "KeyType" : "RANGE"}
+          {"AttributeName" : "surveyId", "KeyType" : "HASH"},
+          {"AttributeName" : "questionId", "KeyType" : "RANGE"}
           
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "QuestionId", "AttributeType" : "S"},
-          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
-          {"AttributeName" : "Order", "AttributeType" : "N"}
+          {"AttributeName" : "questionId", "AttributeType" : "S"},
+          {"AttributeName" : "surveyId", "AttributeType" : "S"},
+          {"AttributeName" : "order", "AttributeType" : "N"}
         ],
         "LocalSecondaryIndexes" : [{
           "IndexName" : "QuestionsOrder",
           "KeySchema" : [
             {
-              "AttributeName" : "SurveyId",
+              "AttributeName" : "surveyId",
               "KeyType" : "HASH"
             },
             {
-              "AttributeName" : "Order",
+              "AttributeName" : "order",
               "KeyType" : "RANGE"
             }
           ],                         
@@ -89,25 +89,25 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "QuestionId", "KeyType" : "HASH"},
-          {"AttributeName" : "ChoiceId", "KeyType" : "RANGE"}
+          {"AttributeName" : "questionId", "KeyType" : "HASH"},
+          {"AttributeName" : "choiceId", "KeyType" : "RANGE"}
           
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "QuestionId", "AttributeType" : "S"},
-          {"AttributeName" : "ChoiceId", "AttributeType" : "S"},
-          {"AttributeName" : "Order", "AttributeType" : "N"}
+          {"AttributeName" : "questionId", "AttributeType" : "S"},
+          {"AttributeName" : "choiceId", "AttributeType" : "S"},
+          {"AttributeName" : "order", "AttributeType" : "N"}
         ],
         "LocalSecondaryIndexes" : [{
           "IndexName" : "QuestionChoicesOrder",
           "KeySchema" : [
             {
-              "AttributeName" : "QuestionId",
+              "AttributeName" : "questionId",
               "KeyType" : "HASH"
             },
             {
-              "AttributeName" : "Order",
+              "AttributeName" : "order",
               "KeyType" : "RANGE"
             }
           ],                         
@@ -125,26 +125,26 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "SurveyId", "KeyType" : "HASH"},
-          {"AttributeName" : "UserId", "KeyType" : "RANGE"}
+          {"AttributeName" : "surveyId", "KeyType" : "HASH"},
+          {"AttributeName" : "userId", "KeyType" : "RANGE"}
           
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "SurveyResponseId", "AttributeType" : "S"},
-          {"AttributeName" : "SurveyId", "AttributeType" : "S"},
-          {"AttributeName" : "UserId", "AttributeType" : "S"},
-          {"AttributeName" : "CompletedAt", "AttributeType" : "N"}
+          {"AttributeName" : "surveyResponseId", "AttributeType" : "S"},
+          {"AttributeName" : "surveyId", "AttributeType" : "S"},
+          {"AttributeName" : "userId", "AttributeType" : "S"},
+          {"AttributeName" : "completedAt", "AttributeType" : "N"}
         ],
         "LocalSecondaryIndexes" : [{
           "IndexName" : "SurveysCompleted",
           "KeySchema" : [
             {
-              "AttributeName" : "SurveyId",
+              "AttributeName" : "surveyId",
               "KeyType" : "HASH"
             },
             {
-              "AttributeName" : "CompletedAt",
+              "AttributeName" : "completedAt",
               "KeyType" : "RANGE"
             }
           ],                         
@@ -157,11 +157,11 @@
           "IndexName" : "SurveyReponses",
           "KeySchema" : [
             {
-              "AttributeName" : "SurveyId",
+              "AttributeName" : "surveyId",
               "KeyType" : "HASH"
             },
             {
-              "AttributeName" : "SurveyResponseId",
+              "AttributeName" : "surveyResponseId",
               "KeyType" : "RANGE"
             }
           ],                         
@@ -179,25 +179,25 @@
         "ProvisionedThroughput" : {"ReadCapacityUnits" : 1, "WriteCapacityUnits" : 1},
         "KeySchema" :
         [
-          {"AttributeName" : "QuestionId", "KeyType" : "HASH"},
-          {"AttributeName" : "SurveyResponseId", "KeyType" : "RANGE"}
+          {"AttributeName" : "questionId", "KeyType" : "HASH"},
+          {"AttributeName" : "surveyResponseId", "KeyType" : "RANGE"}
           
         ],
         "AttributeDefinitions" :
         [
-          {"AttributeName" : "SurveyResponseId", "AttributeType" : "S"},
-          {"AttributeName" : "QuestionId", "AttributeType" : "S"},
-          {"AttributeName" : "SurveyId", "AttributeType" : "S"}
+          {"AttributeName" : "surveyResponseId", "AttributeType" : "S"},
+          {"AttributeName" : "questionId", "AttributeType" : "S"},
+          {"AttributeName" : "surveyId", "AttributeType" : "S"}
         ],
         "LocalSecondaryIndexes" : [{
           "IndexName" : "ResponsesByQuestion",
           "KeySchema" : [
             {
-              "AttributeName" : "QuestionId",
+              "AttributeName" : "questionId",
               "KeyType" : "HASH"
             },
             {
-              "AttributeName" : "SurveyId",
+              "AttributeName" : "surveyId",
               "KeyType" : "RANGE"
             }
           ],                         

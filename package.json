@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "*",
+    "crypto": "^1.0.1",
     "dynamodb": "*",
     "dynamodb-doc": "*",
+    "util": "^0.10.3",
     "uuid": "^3.2.1"
   }
 }
