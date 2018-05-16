@@ -10,6 +10,7 @@
   "AWS_ACCOUNT_ID": "123412341234",
   "CLI_PROFILE": "default",
   "MAX_AGE": "10",
-  "IDENTITY_POOL_NAME": "LambdAuth",
-  "DEVELOPER_PROVIDER_NAME": "login.mycompany.myapp"
+  "IDENTITY_POOL_ID": "us-east-1:000b5d5d-ac24-4fbb-909e-709f2e905025",
+  "DEVELOPER_PROVIDER_NAME": "login.mcksurvey.app",
+  "COGNITO_PUBLIC_KEY": {"kty":"RSA","alg":"RS512","use":"sig","kid":"us-east-11","n":"AIvLE/h4h9XdAVyy0C7fn1ZXZ3Gt6YT2LPsHsoCUGgPAVJnLJjPRj3dSI2UmlWaLacSoHYeFABfxj8YROnE9fpiGto5LcdyfuRKET9Nv5UaZp0kMSSoF7wXinp07ACUbn+ZE3ImQR16r1/Q/j3AD4CmN7gVjk5+EZzVCTQtAzJZJ8/EgCPFE4YA0Q2UgFtBjZnt4SI8TljikBqUmNDVKyjh2yI+m4fQO/LZOEaI/aGOWYen4RrO+/3hTYk73b+oFCPnIp1sLNUmdAHzjIgWYCC2qBwC+tRWi7065ea2KYj+kNNFevXFYMrph3U1mxqDZSzIOvEXIlZqlhOoOc5NmWMc=","e":"AQAB"}
 }

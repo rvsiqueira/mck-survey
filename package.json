@@ -4,16 +4,22 @@
   "description": "## Index",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Rafael Siqueira",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "*",
+    "chai": "^4.1.2",
     "crypto": "^1.0.1",
     "dynamodb": "*",
     "dynamodb-doc": "*",
+    "json-parser": "^1.1.5",
+    "jsonwebtoken": "^8.2.1",
+    "jwk-to-pem": "^2.0.0",
+    "lambda-local": "^1.4.7",
     "util": "^0.10.3",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "winston": "^2.4.2"
   }
 }
