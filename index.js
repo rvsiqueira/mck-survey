@@ -4,6 +4,8 @@ const uuidv1 = require('uuid/v1');
 var crypto = require('crypto');
 var util = require('util');
 var config = require('./config.json');
+var jwt = require("jsonwebtoken");
+var jwkToPem = require('jwk-to-pem');
 
 // Get reference to AWS clients
 AWS.config.update({region: config.REGION});
@@ -40,7 +42,6 @@ function getToken(email, fn) {
 		Logins: {} // To have provider name in a variable
 	};
 	param.Logins[config.DEVELOPER_PROVIDER_NAME] = email;
-	console.log(param);
 	cognitoidentity.getOpenIdTokenForDeveloperIdentity(param,
 		function(err, data) {
 			if (err) return fn(err); // an error occurred
@@ -48,9 +49,18 @@ function getToken(email, fn) {
 		});
 }
 
-function decodeToken(idToken, fn) {
+function confirmToken(token, fn) {
+    
+    var jwk = config.COGNITO_PUBLIC_KEY;
+    var pem = jwkToPem(jwk);
 
-	
+    try {
+        var decoded = jwt.verify(token, pem, {algorithms: ['RS512']});
+        fn(null, decoded); // successful response
+    } catch(err) {
+        fn(err); // an error occurred
+    }
+    
 }
 
 function sendVerificationEmail(email, token, fn) {
@@ -136,7 +146,6 @@ function sendLostPasswordEmail(email, token, fn) {
 
 	var subject = 'Password Lost for ' + config.EXTERNAL_NAME;
 	var lostLink = config.RESET_PAGE + '?email=' + encodeURIComponent(email) + '&lost=' + token;
-	console.log(email);
 	ses.sendEmail({
 		Source: config.EMAIL_SOURCE,
 		Destination: {
@@ -353,6 +362,18 @@ function updateUserResetPassword(email, password, salt, fn) {
 		fn);
 }
 
+function deleteUser(email, fn) {
+	dynamodb.deleteItem({
+			TableName: config.DDB_USER_TABLE,
+			Key: {
+				email: {
+					S: email
+				}
+			},
+		},
+		fn);
+}
+
 
 exports.handler = function(event, context) {
 	var type = event.type;
@@ -378,8 +399,6 @@ exports.handler = function(event, context) {
 						}
 					} else {
 						sendVerificationEmail(email, token, function(err, data) {
-							console.log(data);
-							console.log(err);
 							if (err) {
 								context.fail('Error in sendVerificationEmail: ' + err);
 							} else {
@@ -392,6 +411,29 @@ exports.handler = function(event, context) {
 				});
 			}
 		});
+	} else if(type == 'DeleteUser') {
+		var email = event.email;
+		var token = event.token;
+
+		confirmToken(token, function(err, decoded) {
+			if (err) {
+				context.succeed({
+					message: "Invalid jwt token",
+					deleted: false
+				});
+			} else {
+				deleteUser(email, function(err, token) {
+					if (err) {
+						context.fail("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
+					} else {
+						context.succeed({
+							email: email,
+							deleted: true
+						});
+					}
+				});
+			}
+		});	
 	} else if(type == 'VerifyUser') {
 		var email = event.email;
 		var verifyToken = event.verify;
@@ -400,8 +442,8 @@ exports.handler = function(event, context) {
 			if (err) {
 				context.fail('Error in getUser: ' + err);
 			} else if (verified) {
-				console.log('User already verified: ' + email);
 				context.succeed({
+					message: 'User already verified: ' + email,
 					verified: true
 				});
 			} else if (verifyToken == correctToken) {
@@ -410,16 +452,16 @@ exports.handler = function(event, context) {
 					if (err) {
 						context.fail('Error in updateUser: ' + err);
 					} else {
-						console.log('User verified: ' + email);
 						context.succeed({
+							message: 'User verified: ' + email,
 							verified: true
 						});
 					}
 				});
 			} else {
 				// Wrong token, not verified
-				console.log('User not verified: ' + email);
 				context.succeed({
+					message: 'Wrong token, user not verified: ' + email,
 					verified: false
 				});
 			}
@@ -434,14 +476,14 @@ exports.handler = function(event, context) {
 			} else {
 				if (correctHash == null) {
 					// User not found
-					//console.log('User not found: ' + email);
 					context.succeed({
+						message: 'User not found: ' + email,
 						login: false
 					});
 				} else if (!verified) {
 					// User not verified
-					//console.log('User not verified: ' + email);
 					context.succeed({
+						message: 'User not verified: ' + email,
 						login: false,
 						verified: false,
 					});
@@ -450,15 +492,14 @@ exports.handler = function(event, context) {
 						if (err) {
 							context.fail('Error in hash: ' + err);
 						} else {
-							//console.log('correctHash: ' + correctHash + ' hash: ' + hash);
 							if (hash == correctHash) {
 								// Login ok
-								//console.log('User logged in: ' + email);
 								getToken(email, function(err, identityId, token) {
 									if (err) {
 										context.fail('Error in getToken: ' + err);
 									} else {
 										context.succeed({
+											message: 'User logged in: ' + email,
 											login: true,
 											identityId: identityId,
 											token: token
@@ -467,8 +508,8 @@ exports.handler = function(event, context) {
 								});
 							} else {
 								// Login failed
-								//console.log('User login failed: ' + email);
 								context.succeed({
+									message: 'User login failed: ' + email,
 									login: false,
 									verified: false
 								});
@@ -488,8 +529,8 @@ exports.handler = function(event, context) {
 			} else {
 				if (correctHash == null) {
 					// User not found
-					console.log('User not found: ' + email);
 					context.succeed({
+						message: 'User not found: ' + email,
 						changed: false
 					});
 				} else {
@@ -499,7 +540,6 @@ exports.handler = function(event, context) {
 						} else {
 							if (hash == correctHash) {
 								// Login ok
-								console.log('User logged in: ' + email);
 								computeHash(newPassword, function(err, newSalt, newHash) {
 									if (err) {
 										context.fail('Error in computeHash: ' + err);
@@ -508,8 +548,8 @@ exports.handler = function(event, context) {
 											if (err) {
 												context.fail('Error in updateUser: ' + err);
 											} else {
-												console.log('User password changed: ' + email);
 												context.succeed({
+													message: 'User password changed: ' + email,
 													changed: true
 												});
 											}
@@ -518,8 +558,8 @@ exports.handler = function(event, context) {
 								});
 							} else {
 								// Login failed
-								console.log('User login failed: ' + email);
 								context.succeed({
+									message: 'User login failed: ' + email,
 									changed: false
 								});
 							}
@@ -534,8 +574,8 @@ exports.handler = function(event, context) {
 			if (err) {
 				context.fail('Error in getUserFromEmail: ' + err);
 			} else if (!emailFound) {
-				console.log('User not found: ' + email);
 				context.succeed({
+					message: 'User not found: ' + email,
 					sent: false
 				});
 			} else {
@@ -547,8 +587,8 @@ exports.handler = function(event, context) {
 							if (err) {
 								context.fail('Error in sendLostPasswordEmail: ' + err);
 							} else {
-								console.log('User found: ' + email);
 								context.succeed({
+									message: 'User found: ' + email,
 									sent: true
 								});
 							}
@@ -566,18 +606,17 @@ exports.handler = function(event, context) {
 			if (err) {
 				context.fail('Error in getUser: ' + err);
 			} else if (!correctToken) {
-				console.log('No lostToken for user: ' + email);
 				context.succeed({
+					message: 'No lostToken for user: ' + email,
 					changed: false
 				});
 			} else if (lostToken != correctToken) {
 				// Wrong token, no password lost
-				console.log('Wrong lostToken for user: ' + email);
 				context.succeed({
+					message: 'Wrong lostToken for user: ' + email,
 					changed: false
 				});
 			} else {
-				console.log('User logged in: ' + email);
 				computeHash(newPassword, function(err, newSalt, newHash) {
 					if (err) {
 						context.fail('Error in computeHash: ' + err);
@@ -586,8 +625,8 @@ exports.handler = function(event, context) {
 							if (err) {
 								context.fail('Error in updateUser: ' + err);
 							} else {
-								console.log('User password changed: ' + email);
 								context.succeed({
+									message: 'User password changed: ' + email,
 									changed: true
 								});
 							}
